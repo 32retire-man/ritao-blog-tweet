@@ -16,22 +16,21 @@ if option_check == True:
   tweet_df = time_df[time_df['ツイート本文'].str.contains('#ブログ')]
 else:
   tweet_df = time_df
-df_time = tweet_df.set_index('時間')
 
-year_list = tweet_df["時間"].dt.strftime('%m月%d日%H時%M分')
-option_year = st.selectbox('時間', (year_list))
+index_list = tweet_df["時間"].dt.strftime('%m月%d日%H時%M分')
+option_index = st.selectbox('ツイート投稿時間', (index_list))
 
 st.text('【ツイートのURL】')
-url = tweet_df[(tweet_df['時間'].dt.strftime('%m月%d日%H時%M分') == option_year)]["ツイートの固定リンク"].iloc[0]
+url = tweet_df[(tweet_df['時間'].dt.strftime('%m月%d日%H時%M分') == option_index)]["ツイートの固定リンク"].iloc[0]
 st.markdown(url, unsafe_allow_html=True)
 
 st.text('【ツイート本文】')
-txt = tweet_df[(tweet_df['時間'].dt.strftime('%m月%d日%H時%M分') == option_year)]["ツイート本文"].iloc[0]
+txt = tweet_df[(tweet_df['時間'].dt.strftime('%m月%d日%H時%M分') == option_index)]["ツイート本文"].iloc[0]
 st.write(txt)
 
-imp = tweet_df[(tweet_df['時間'].dt.strftime('%m月%d日%H時%M分') == option_year)]["インプレッション"].iloc[0]
-click = tweet_df[(tweet_df['時間'].dt.strftime('%m月%d日%H時%M分') == option_year)]["URLクリック数"].iloc[0]
-good = tweet_df[(tweet_df['時間'].dt.strftime('%m月%d日%H時%M分') == option_year)]["いいね"].iloc[0]
+imp = tweet_df[(tweet_df['時間'].dt.strftime('%m月%d日%H時%M分') == option_index)]["インプレッション"].iloc[0]
+click = tweet_df[(tweet_df['時間'].dt.strftime('%m月%d日%H時%M分') == option_index)]["URLクリック数"].iloc[0]
+good = tweet_df[(tweet_df['時間'].dt.strftime('%m月%d日%H時%M分') == option_index)]["いいね"].iloc[0]
 
 st.text('【インプレッション(Twitterが見られた回数)】')
 st.subheader(imp)
@@ -39,13 +38,15 @@ st.text('【URLクリック数(Twitterからブログ記事をクリックした
 st.subheader(click)
 st.text('【いいね】')
 st.subheader(good)
-time_array = tweet_df.iloc[:,3]
+time_array = tweet_df["時間"].dt.strftime('%m月%d日%H時%M分')
 
-fig = px.bar(tweet_df, x=[tweet_df['インプレッション'], tweet_df['URLクリック数'], tweet_df['いいね']], y=tweet_df["時間"], range_x=[0,800], orientation='h', width=800, height=3000)
+fig = px.bar(tweet_df, x=[tweet_df['インプレッション'], tweet_df['URLクリック数'], tweet_df['いいね']], y=tweet_df.index, orientation='h', width=800, height=3000)
 fig.update_layout(
     yaxis = dict(
-        tickmode = 'array',
-        tickvals = time_array
+      title = 'ツイート投稿時間',
+      tickmode = 'array',
+      tickvals = tweet_df.index,
+      ticktext = time_array
     ),
     yaxis_tickformat = '%m月%d日%H時'
 )
