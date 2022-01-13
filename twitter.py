@@ -12,10 +12,20 @@ november_df['時間'] = jtime_df
 time_df = november_df.sort_values(by='時間')
 
 option_check = st.checkbox("ブログ投稿記事のみ")
+retweet_check = st.checkbox("リツイートなしの投稿")
+
 if option_check == True:
   tweet_df = time_df[time_df['ツイート本文'].str.contains('#ブログ')]
+  if retweet_check == True:
+    tweet_df = tweet_df[tweet_df['リツイート'] == 0]
+  else:
+    tweet_df = tweet_df
 else:
   tweet_df = time_df
+  if retweet_check == True:
+    tweet_df = tweet_df[tweet_df['リツイート'] == 0]
+  else:
+    tweet_df = tweet_df
 
 index_list = tweet_df["時間"].dt.strftime('%m月%d日%H時%M分')
 option_index = st.selectbox('ツイート投稿時間', (index_list))
@@ -39,14 +49,15 @@ st.subheader(click)
 st.text('【いいね】')
 st.subheader(good)
 time_array = tweet_df["時間"].dt.strftime('%m月%d日%H時%M分')
+ymax = len(november_df.index)
 
-fig = px.bar(tweet_df, x=[tweet_df['インプレッション'], tweet_df['URLクリック数'], tweet_df['いいね']], y=tweet_df.index, orientation='h', width=800, height=3000)
+fig = px.bar(tweet_df, x=[tweet_df['インプレッション'], tweet_df['URLクリック数'], tweet_df['いいね']], y=tweet_df.index, range_y=[0, ymax], orientation='h', width=800, height=3000)
 fig.update_layout(
     yaxis = dict(
       title = 'ツイート投稿時間',
       tickmode = 'array',
       tickvals = tweet_df.index,
-      ticktext = time_array
+      ticktext = time_array,
     ),
     yaxis_tickformat = '%m月%d日%H時'
 )
